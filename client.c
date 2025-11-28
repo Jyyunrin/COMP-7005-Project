@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <inttypes.h> 
 #include <signal.h>
+#include <getopt.h>
 
 
 static void setup_signal_handler(void);
@@ -23,7 +24,7 @@ static int create_socket(int domain, int type, int protocol);
 static void get_address_to_server(struct sockaddr_storage *addr, in_port_t port);
 static void send_packet(int sock_fd, packet_t *packet, struct sockaddr *addr, socklen_t addr_len);
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence);
-static void socket_close(int sock_fd);
+static void close_socket(int sock_fd);
 
 static volatile sig_atomic_t exit_flag = 0;
 
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    socket_close(sock_fd);
+    close_socket(sock_fd);
     return EXIT_SUCCESS;
 }
 
@@ -142,17 +143,59 @@ static void sigint_handler(int signum) {
 
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str, char **timeout_str, char **max_retries_str) {
     int opt;
+    int option_index = 0;
+    int ip_set = 0;
+    int port_set = 0;
+    int timeout_set = 0;
+    int retries_set = 0;
+
+    static struct option long_options[] = {
+        {"target-ip", required_argument, 0, 1},
+        {"target-port", required_argument, 0, 2},
+        {"timeout", required_argument, 0, 3},
+        {"max-retries", required_argument, 0, 4},
+        {"help", required_argument, 0, 'h'},
+        {0, 0, 0, 0}
+    };
 
     opterr = 0;
 
-    while((opt = getopt(argc, argv, "h")) != -1) {
+    while((opt = getopt_long(argc, argv, "h", long_options, &option_index)) != -1) {
         switch(opt){
+            case 1:
+                if(ip_set){
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --target-ip");
+                }
+                *ip_address = optarg;
+                ip_set = 1;
+                break;
+            case 2:
+                if(port_set){
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --target-port");
+                }
+                *port_str = optarg;
+                port_set = 1;
+                break;
+            case 3:
+                if(timeout_set){
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --timeout");
+                }
+                *timeout_str = optarg;
+                timeout_set = 1;
+                break;
+            case 4:
+                if(retries_set){
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --max-retries");
+                }
+                *max_retries_str = optarg;
+                retries_set = 1;
+                break;
             case 'h':
                 usage(argv[0], EXIT_SUCCESS, NULL);
                 break;
             case '?': {
                 char message[UNKNOWN_OPTION_MESSAGE_LEN];
-                snprintf(message, sizeof(message), "Unknown option '-%c'", optopt);
+                snprintf(message, sizeof(message), "Unknown option");
                 usage(argv[0], EXIT_FAILURE, message);
                 break;
             }
@@ -161,18 +204,13 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
         }
     }
 
-    int required_args = 4;
-
-    if(argc - optind < required_args) {
-        usage(argv[0], EXIT_FAILURE, "Too few arguments.");
-    } else if (argc - optind > required_args) {
-        usage(argv[0], EXIT_FAILURE, "Too many arguments");
+    if (!*ip_address || !*port_str || !*timeout_str || !*max_retries_str) {
+        usage(argv[0], EXIT_FAILURE, "Missing required arguments.");
     }
 
-    *ip_address = argv[optind];
-    *port_str = argv[optind + 1];
-    *timeout_str = argv[optind + 2];
-    *max_retries_str = argv[optind + 3];
+    if (optind < argc) {
+        usage(argv[0], EXIT_FAILURE, "Unexpected extra arguments.");
+    }
 }
 
 _Noreturn static void usage(const char *program_name, int exit_code, const char* message){
@@ -180,9 +218,13 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
         fprintf(stderr, "%s\n", message);
     }
 
-    fprintf(stderr, "Usage: %s [-h] <target-ip> <target-port> <timeout> <max-retries>\n", program_name);
+    fprintf(stderr, "Usage: %s [options]\n", program_name);
     fputs("Options:\n", stderr);
-    fputs("  -h  Display this help message\n", stderr);
+    fputs("  --target-ip <ip>         IP address to bind to\n", stderr);
+    fputs("  --target-port <port>     UDP port to listen on\n", stderr);
+    fputs("  --timeout <seconds>      Timeout for client messaging\n", stderr);
+    fputs("  --max-retries <number>   Maximum resend attempts\n", stderr);
+    fputs("  -h, --help               Display this help message\n", stderr);
     exit(exit_code);
 }
 
@@ -341,7 +383,7 @@ static void send_packet(int sock_fd, packet_t *packet, struct sockaddr *addr, so
 
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence) {
 
-    ssize_t bytes_received = recvfrom(sock_fd, ack_packet, sizeof(*ack_packet), 0, (struct sockaddr *)&addr, addr_len);
+    ssize_t bytes_received = recvfrom(sock_fd, ack_packet, sizeof(*ack_packet), 0, addr, addr_len);
 
     if (bytes_received >= 0) {
         if(ack_packet->sequence == *current_sequence) {
@@ -362,7 +404,7 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
 
 }
 
-static void socket_close(int sock_fd) {
+static void close_socket(int sock_fd) {
 
     printf("Closing client socket\n");
             
