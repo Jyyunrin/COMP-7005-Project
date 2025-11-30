@@ -1,15 +1,11 @@
 
-#define _DEFAULT_SOURCE
 #include "common.h"
 
-static void setup_signal_handler(void);
-static void sigint_handler(int signum);
 static void parse_args(int argc,char *argv[], char **listen_ip_str, char **listen_port_str, char **target_ip_str, char **target_port_str,
                     char **client_drop_str, char **server_drop_str, char **client_delay_str, char **server_delay_str, char **client_delay_min_time_str,
                     char **client_delay_max_time_str, char **server_delay_min_time_str, char **server_delay_max_time_str);
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
-
-static volatile sig_atomic_t exit_flag = 0;
+static int parse_int_param(const char *str, const char *name);
 
 int main(int argc, char *argv[]) {
     
@@ -25,6 +21,21 @@ int main(int argc, char *argv[]) {
     char                   *client_delay_max_time_str;
     char                   *server_delay_min_time_str;
     char                   *server_delay_max_time_str;
+    struct sockaddr_storage listen_ip;
+    struct sockaddr_storage target_ip;
+    socklen_t               listen_ip_len;
+    socklen_t               target_ip_len;
+    in_port_t               listen_port;
+    in_port_t               target_port;
+    int                     client_drop;
+    int                     server_drop;
+    int                     client_delay;
+    int                     server_delay;
+    int                     client_delay_min;
+    int                     client_delay_max;
+    int                     server_delay_min;
+    int                     server_delay_max;
+
 
     listen_ip_str = NULL;
     listen_port_str = NULL;
@@ -56,27 +67,24 @@ int main(int argc, char *argv[]) {
     printf("server_delay_min_time: %s\n", server_delay_min_time_str);
     printf("server_delay_max_time: %s\n", server_delay_max_time_str);
 
+    convert_address(listen_ip_str, &listen_ip, &listen_ip_len);
+    convert_address(target_ip_str, &target_ip, &target_ip_len);
 
-    
-}
+    parse_port(listen_port_str, &listen_port);
+    parse_port(target_port_str, &target_port);
 
-static void setup_signal_handler(void) {
-    struct sigaction sa;
+    printf("Listen Port: %d\n", listen_port);
+    printf("Target Port: %d\n", target_port);
 
-    memset(&sa, 0, sizeof(sa));
+    client_drop         = parse_int_param(client_drop_str, "client-drop");
+    server_drop         = parse_int_param(server_drop_str, "server-drop");
+    client_delay        = parse_int_param(client_delay_str, "client-delay");
+    server_delay        = parse_int_param(server_delay_str, "server-delay");
+    client_delay_min    = parse_int_param(client_delay_min_time_str, "client-delay-min");
+    client_delay_max    = parse_int_param(client_delay_max_time_str, "client-delay-max");
+    server_delay_min    = parse_int_param(server_delay_min_time_str, "server-delay-min");
+    server_delay_max    = parse_int_param(server_delay_max_time_str, "server-delay-max");
 
-    sa.sa_handler = sigint_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-
-    if(sigaction(SIGINT, &sa, NULL) == -1) {
-        perror("Signal handler setup failed");
-        exit(EXIT_FAILURE);
-    }
-}
-
-static void sigint_handler(int signum) {
-    exit_flag = 1;
 }
 
 static void parse_args(int argc,char *argv[], char **listen_ip_str, char **listen_port_str, char **target_ip_str, char **target_port_str,
@@ -258,4 +266,34 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
     fputs("  --server-delay-time-max <ms>     Maximum delay time (ms) for server packets\n", stderr);
     fputs("  -h, --help                       Display this help message\n", stderr);
     exit(exit_code);
+}
+
+static int parse_int_param(const char *str, const char *name) {
+    char *endptr;
+    long value;
+
+    if(!str) {
+        fprintf(stderr, "Missing value for %s\n", name);
+        exit(EXIT_FAILURE);
+    }
+
+    errno = 0;
+    value = strtol(str, &endptr, 10);
+
+    if(errno != 0) {
+        perror("strtol");
+        exit(EXIT_FAILURE);
+    }
+
+    if(*endptr != '\0') {
+        fprintf(stderr, "Invalid non-numeric characters in %s: %s\n", name, str);
+    }
+
+    if(value < MIN_INT_PARSE || value > MAX_INT_PARSE) {
+        fprintf(stderr, "%s value is out of range", name);
+        exit(EXIT_FAILURE);
+    }
+
+    return (int)value;
+
 }

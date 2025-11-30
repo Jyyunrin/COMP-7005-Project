@@ -1,20 +1,12 @@
-#define _DEFAULT_SOURCE
 #include "common.h"
 
-
-static void setup_signal_handler(void);
-static void sigint_handler(int signum);
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str, char **timeout_str, char **max_retries_str);
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
 static void parse_parameters(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries);
 static int fill_packet(packet_t *packet, int seq);
-static int create_socket(int domain, int type, int protocol);
 static void get_address_to_server(struct sockaddr_storage *addr, in_port_t port);
 static void send_packet(int sock_fd, packet_t *packet, struct sockaddr *addr, socklen_t addr_len);
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence);
-static void close_socket(int sock_fd);
-
-static volatile sig_atomic_t exit_flag = 0;
 
 int main(int argc, char *argv[]) {
 
@@ -107,26 +99,6 @@ int main(int argc, char *argv[]) {
 
     close_socket(sock_fd);
     return EXIT_SUCCESS;
-}
-
-static void setup_signal_handler(void) {
-    struct sigaction sa;
-
-    memset(&sa, 0, sizeof(sa));
-
-    sa.sa_handler = sigint_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-
-    if(sigaction(SIGINT, &sa, NULL) == -1) {
-        perror("Signal handler setup failed");
-        exit(EXIT_FAILURE);
-    }
-}
-
-static void sigint_handler(int signum) {
-
-    exit_flag = 1;
 }
 
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str, char **timeout_str, char **max_retries_str) {
@@ -258,18 +230,6 @@ static void parse_parameters(char *timeout_str, char *max_retries_str, int *time
     *max_retries = (int) parsed_max_retries;
 }
 
-static int create_socket(int domain, int type, int protocol){
-
-    int sockfd = socket(domain, type, protocol);
-
-    if(sockfd == -1) {
-        perror("Socket creation failed");
-        exit(EXIT_FAILURE);
-    }
-
-    return sockfd;
-}
-
 static int fill_packet(packet_t *packet, int seq) {
 
     char message[LINE_LEN];
@@ -341,14 +301,4 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
         }
     }
 
-}
-
-static void close_socket(int sock_fd) {
-
-    printf("Closing client socket\n");
-            
-    if(close(sock_fd) == -1) {
-        perror("Error closing socket");
-        exit(EXIT_FAILURE);
-    }
 }

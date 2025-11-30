@@ -1,10 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
+#define _DEFAULT_SOURCE
 #define LINE_LEN 1024
 #define UNKNOWN_OPTION_MESSAGE_LEN 24
 #define BASE_TEN 10
 #define MAX_TIMEOUT 100
 #define MAX_RETRIES 100
+#define MIN_INT_PARSE 0
+#define MAX_INT_PARSE 10000
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +27,15 @@ typedef struct packet {
     char payload[LINE_LEN];
 } packet_t;
 
+extern volatile sig_atomic_t exit_flag;
+void setup_signal_handler(void);
+static void sigint_handler(int signum);
 void convert_address(const char *ip_address, struct sockaddr_storage *addr, socklen_t *addr_len);
 void parse_port(char *port_str, in_port_t *port);
+int create_socket(int domain, int type, int protocol);
+void bind_socket(int sock_fd, struct sockaddr_storage *addr, in_port_t port);
+void close_socket(int sock_fd);
+
+
 
 #endif
