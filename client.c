@@ -4,8 +4,6 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
 static void parse_parameters(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries);
 static int fill_packet(packet_t *packet, int seq);
-static void get_address_to_server(struct sockaddr_storage *addr, in_port_t port);
-static void send_packet(int sock_fd, packet_t *packet, struct sockaddr *addr, socklen_t addr_len);
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence);
 
 int main(int argc, char *argv[]) {
@@ -251,47 +249,22 @@ static int fill_packet(packet_t *packet, int seq) {
     return 1;
 }
 
-static void get_address_to_server(struct sockaddr_storage *addr, in_port_t port) {
-
-    if(addr->ss_family == AF_INET) {
-
-        struct sockaddr_in *ipv4_addr;
-        ipv4_addr = (struct sockaddr_in *)addr;
-        ipv4_addr->sin_family = AF_INET;
-        ipv4_addr->sin_port = htons(port);
-
-    } else if (addr->ss_family == AF_INET6) {
-        
-        struct sockaddr_in6 *ipv6_addr;
-        ipv6_addr = (struct sockaddr_in6 *)addr;
-        ipv6_addr->sin6_family = AF_INET6;
-        ipv6_addr->sin6_port = htons(port);
-
-    }
-}
-
-static void send_packet(int sock_fd, packet_t *packet, struct sockaddr *addr, socklen_t addr_len) {
-
-    ssize_t bytes_sent = sendto(sock_fd, packet, sizeof(*packet), 0, addr, addr_len);
-
-    if(bytes_sent == -1) {
-        perror("Error sending packet to server");
-        exit(EXIT_FAILURE);
-    }
-}
-
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence) {
 
     ssize_t bytes_received = recvfrom(sock_fd, ack_packet, sizeof(*ack_packet), 0, addr, addr_len);
 
     if (bytes_received >= 0) {
         if(ack_packet->sequence == *current_sequence) {
+
             (*current_sequence)++;
             printf("%s received for packet %d\n", ack_packet->payload, ack_packet->sequence);
-                return 1;
-            } else {
-                return 0;
-            }
+            return 1;
+
+        } else {
+            
+            printf("Old sequence: %d ack received from server, dropping!", ack_packet->sequence);
+            return 0;
+        }
     } else {
         if(errno == EAGAIN || errno == EWOULDBLOCK) {
             return 0;

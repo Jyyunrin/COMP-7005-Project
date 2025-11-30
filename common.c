@@ -128,9 +128,38 @@ void bind_socket(int sock_fd, struct sockaddr_storage *addr, in_port_t port) {
     printf("Bound to socket %s:%u\n", addr_str, port);
 }
 
+void get_address_to_server(struct sockaddr_storage *addr, in_port_t port) {
+
+    if(addr->ss_family == AF_INET) {
+
+        struct sockaddr_in *ipv4_addr;
+        ipv4_addr = (struct sockaddr_in *)addr;
+        ipv4_addr->sin_family = AF_INET;
+        ipv4_addr->sin_port = htons(port);
+
+    } else if (addr->ss_family == AF_INET6) {
+        
+        struct sockaddr_in6 *ipv6_addr;
+        ipv6_addr = (struct sockaddr_in6 *)addr;
+        ipv6_addr->sin6_family = AF_INET6;
+        ipv6_addr->sin6_port = htons(port);
+
+    }
+}
+
+void send_packet(int sock_fd, packet_t *packet, struct sockaddr *addr, socklen_t addr_len) {
+
+    ssize_t bytes_sent = sendto(sock_fd, packet, sizeof(*packet), 0, addr, addr_len);
+
+    if(bytes_sent == -1) {
+        perror("Error sending packet to server");
+        exit(EXIT_FAILURE);
+    }
+}
+
 void close_socket(int sock_fd) {
 
-    printf("Closing client socket\n");
+    printf("Closing socket %d\n", sock_fd);
             
     if(close(sock_fd) == -1) {
         perror("Error closing socket");

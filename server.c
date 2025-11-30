@@ -47,9 +47,8 @@ int main(int argc, char *argv[]) {
         
         if(receive_packet(sock_fd, &packet, &client_addr, &client_addr_len)){
 
-            printf("Client address family: %d\n", client_addr.ss_family);
-            printf("Client address length: %u\n", client_addr_len);
-            
+            printf("Received Packet %d\n", packet.sequence);
+
             if(handle_packet(&packet, &sequence_counter)) {
                 send_ack(sock_fd, sequence_counter, &ack_packet, &client_addr, &client_addr_len);
             }
@@ -151,8 +150,10 @@ static int receive_packet(int sock_fd, packet_t *packet, struct sockaddr_storage
 static int handle_packet(packet_t *packet, int *sequence_counter) {
     
     if(packet->sequence < *sequence_counter) {
+        printf("Received old sequence number: %d, no ack sent, dropping\n", packet->sequence);
         return 0;
     } else if (packet->sequence == *sequence_counter) {
+        printf("Received duplicate of current sequence number: %d, resending ack\n", packet->sequence);
         return 1;
     } else {
         printf("Packet %d: %s\n", packet->sequence, packet->payload);
