@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c17 -Werror
-COMMON = common.o
+COMMON = common.o log.o
 
 all: client server proxy
 
@@ -13,7 +13,7 @@ server: server.c $(COMMON)
 proxy: proxy.c $(COMMON)
 	$(CC) $(CFLAGS) -o proxy proxy.c $(COMMON)
 
-%.o: %.c common.h
+%.o: %.c common.h log.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:

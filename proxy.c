@@ -1,8 +1,7 @@
 
 #include "common.h"
-#include <poll.h>
-#include <time.h> 
-#include <fcntl.h> 
+#include "log.h"
+#include <time.h>
 #include <sys/time.h>
 
 

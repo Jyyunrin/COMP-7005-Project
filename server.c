@@ -1,4 +1,5 @@
 #include "common.h"
+#include "log.h"
 
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str);
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);

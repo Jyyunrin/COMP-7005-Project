@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <signal.h>
-#include "common.h"
+#include "log.h"
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>

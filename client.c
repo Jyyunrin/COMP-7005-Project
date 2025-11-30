@@ -1,4 +1,5 @@
 #include "common.h"
+#include "log.h"
 
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str, char **timeout_str, char **max_retries_str);
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
@@ -33,24 +34,25 @@ int main(int argc, char *argv[]) {
     sequence_counter = 0;
     succesfully_received = 0;
 
+    log_init("client_log.txt");
     setup_signal_handler();
     parse_args(argc, argv, &ip_address, &port_str, &timeout_str, &max_retries_str);
 
-    printf("ip address: %s\n", ip_address);
-    printf("port_str: %s\n", port_str);
-    printf("timeout_str: %s\n", timeout_str);
-    printf("max_retries_str: %s\n", max_retries_str);
+    // printf("ip address: %s\n", ip_address);
+    // printf("port_str: %s\n", port_str);
+    // printf("timeout_str: %s\n", timeout_str);
+    // printf("max_retries_str: %s\n", max_retries_str);
 
     convert_address(ip_address, &addr, &addr_len);
 
     parse_port(port_str, &port);
 
-    printf("Port: %d\n", port);
+    // printf("Port: %d\n", port);
 
     parse_parameters(timeout_str, max_retries_str, &timeout, &max_retries);
 
-    printf("Timeout: %d\n", timeout);
-    printf("Max_Retries: %d\n", max_retries);
+    // printf("Timeout: %d\n", timeout);
+    // printf("Max_Retries: %d\n", max_retries);
 
     sock_fd = create_socket(addr.ss_family, SOCK_DGRAM, 0);
     get_address_to_server(&addr, port);
@@ -71,13 +73,14 @@ int main(int argc, char *argv[]) {
             continue;
         };
 
-        printf("Sock: %d\n", sock_fd);
-        printf("Packet Sequence: %d\n", packet.sequence);
-        printf("Packet Payload: %s\n", packet.payload);
+        // printf("Sock: %d\n", sock_fd);
+        // printf("Packet Sequence: %d\n", packet.sequence);
+        // printf("Packet Payload: %s\n", packet.payload);
 
         for (int attempt = 0; attempt <= max_retries; attempt++) {
 
-            printf("Attempting attempt %d\n", attempt);
+            printf("Sending Packet %d:%s, attempt %d\n", packet.sequence, packet.payload, attempt);
+            log_event(LOG_CLIENT, "Sending Packet %d:%s, attempt %d", packet.sequence, packet.payload, attempt);
 
             send_packet(sock_fd, &packet, (struct sockaddr *)&addr, addr_len);
 

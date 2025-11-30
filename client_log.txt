@@ -1,0 +1,12 @@
+1764501283 CLIENT Sending Packet 0:Hello, attempt 0
+1764501289 CLIENT Sending Packet 0:Hello, attempt 1
+1764501296 CLIENT Sending Packet 0:Hello, attempt 2
+1764501302 CLIENT Sending Packet 0:Hello, attempt 3
+1764501308 CLIENT Sending Packet 0:Hello, attempt 4
+1764501314 CLIENT Sending Packet 0:Hello, attempt 5
+1764501328 CLIENT Sending Packet 1:BB, attempt 0
+1764501334 CLIENT Sending Packet 1:BB, attempt 1
+1764501341 CLIENT Sending Packet 1:BB, attempt 2
+1764501347 CLIENT Sending Packet 1:BB, attempt 3
+1764501353 CLIENT Sending Packet 1:BB, attempt 4
+1764501359 CLIENT Sending Packet 1:BB, attempt 5
