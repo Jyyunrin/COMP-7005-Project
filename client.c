@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
     int                     max_retries;
     int                     sock_fd;
     int                     sequence_counter;
-    char                    message[LINE_LEN];
     struct timeval          socket_timevalue;
     int                     succesfully_received;
 
@@ -84,11 +83,10 @@ int main(int argc, char *argv[]) {
             send_packet(sock_fd, &packet, (struct sockaddr *)&addr, addr_len);
             log_packet(LOG_CLIENT, "Sent", packet.sequence, packet.payload, 0);
 
-            if(receive_acknowledgement(sock_fd, &ack_packet, (struct sockaddr *)&addr, &addr_len, &sequence_counter)){
-                succesfully_received = 1;
+            succesfully_received = receive_acknowledgement(sock_fd, &ack_packet, (struct sockaddr *)&addr, &addr_len, &sequence_counter);
+                
+            if (succesfully_received){
                 break;
-            } else {
-                continue;
             }
         }
 

@@ -71,8 +71,8 @@ int main(int argc, char *argv[]) {
     client_delay_max_time_str = NULL;
     server_delay_min_time_str = NULL;
     server_delay_max_time_str = NULL;
-    socket_timevalue.tv_sec = 2;
-    socket_timevalue.tv_usec = PROXY_TIMEOUT_TIME;
+    socket_timevalue.tv_sec = PROXY_TIMEOUT_S;
+    socket_timevalue.tv_usec = PROXY_TIMEOUT_US;
     client_addr_len = sizeof(client_addr);
     client_to_server_queue = NULL;
     server_to_client_queue = NULL;

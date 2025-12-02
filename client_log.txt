@@ -1,13 +1,4 @@
-1764643338 CLIENT Sending Packet 0: Hello, attempt 1
-1764643338 CLIENT Sent 0 Hello
-1764643341 CLIENT Sending Packet 0: Hello, attempt 2
-1764643341 CLIENT Sent 0 Hello
-1764643344 CLIENT Sending Packet 0: Hello, attempt 3
-1764643344 CLIENT Sent 0 Hello
-1764643347 CLIENT Sending Packet 0: Hello, attempt 4
-1764643347 CLIENT Sent 0 Hello
-1764643350 CLIENT Sending Packet 0: Hello, attempt 5
-1764643350 CLIENT Sent 0 Hello
-1764643352 CLIENT Received 0 Acknowledged
-1764643352 CLIENT Printed out received acknowledgement: Acknowledged
-
+1764644987 CLIENT Sending Packet 0: hello, attempt 1
+1764644987 CLIENT Sent 0 hello
+1764644990 CLIENT Sending Packet 0: hello, attempt 2
+1764644990 CLIENT Sent 0 hello
