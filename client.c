@@ -63,8 +63,7 @@ int main(int argc, char *argv[]) {
 
         for (int attempt = 0; attempt <= max_retries; attempt++) {
 
-            printf("Sending Packet %d: %s, attempt %d\n", packet.sequence, packet.payload, attempt + 1);
-            log_event(LOG_CLIENT, "Sending Packet %d: %s, attempt %d", packet.sequence, packet.payload, attempt + 1);
+            log_event(LOG_CLIENT, "Sending Packet %d, Attempt %d", packet.sequence, attempt + 1);
 
             send_packet(sock_fd, &packet, (struct sockaddr *)&addr, addr_len);
             log_packet(LOG_CLIENT, "Sent", packet.sequence, packet.payload, 0);
@@ -77,7 +76,6 @@ int main(int argc, char *argv[]) {
         }
 
         if(!succesfully_received) {
-            fprintf(stderr, "Failed to receive ACK for packet %d after %d attempts\n", packet.sequence, max_retries + 1);
             log_event(LOG_CLIENT, "Failed to receive ACK for packet %d after %d attempts\n", packet.sequence, max_retries + 1);
             sequence_counter++;
         }
@@ -256,14 +254,12 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
         if(ack_packet->sequence == *current_sequence) {
 
             (*current_sequence)++;
-            printf("%s received for packet %d\n", ack_packet->payload, ack_packet->sequence);
             log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload, 0);
             log_event(LOG_CLIENT, "Printed out received acknowledgement: %s\n", ack_packet->payload);
             return 1;
 
         } else {
             
-            printf("Old sequence: %d ack received from server, dropping!", ack_packet->sequence);
             return 0;
         }
     } else {

@@ -127,19 +127,16 @@ int main(int argc, char *argv[]) {
         ssize_t n = recvfrom(client_sock_fd, &packet, sizeof(packet), 0, (struct sockaddr *)&client_addr, &client_addr_len);
 
         if (n > 0) {
-            printf("Received packet %d from Client\n", packet.sequence);
             log_packet(LOG_PROXY, "Received from Client", packet.sequence, packet.payload, 0);
             int noise = determine_noise(client_drop, client_delay);
 
             if(!noise) {
-                printf("Sending packet %d to Server\n", packet.sequence);
                 send_packet(server_sock_fd, &packet, (struct sockaddr *)&target_ip, target_ip_len);
                 log_packet(LOG_PROXY, "Sent to Server", packet.sequence, packet.payload, 1);
             } else if (noise == 2) {
                 delay_packet(&packet, client_delay_min, client_delay_max, &client_to_server_queue, 0);
 
             } else {
-                printf("Dropping Client to Server packet %d\n", packet.sequence);
                 log_packet(LOG_PROXY, "Dropped Client to Server", packet.sequence, packet.payload, 1);
             }
 
@@ -151,19 +148,16 @@ int main(int argc, char *argv[]) {
         n = recvfrom(server_sock_fd, &packet_server, sizeof(packet_server), 0, (struct sockaddr *)&target_ip, &target_ip_len);
 
         if (n > 0) {
-            printf("Received packet %d from Server\n", packet_server.sequence);
             log_packet(LOG_PROXY, "Received from Server", packet_server.sequence, packet_server.payload, 0);
             int noise = determine_noise(server_drop, server_delay);
 
             if(!noise) {
-                printf("Sending packet %d to Client\n", packet_server.sequence);
                 send_packet(client_sock_fd, &packet_server, (struct sockaddr *)&client_addr, client_addr_len);
                 log_packet(LOG_PROXY, "Sent to Client", packet_server.sequence, packet_server.payload, 1);
 
             } else if (noise == 2) {
                 delay_packet(&packet_server, server_delay_min, server_delay_max, &server_to_client_queue, 1);
             } else {
-                printf("Dropping Server to Client packet %d\n", packet_server.sequence);
                 log_packet(LOG_PROXY, "Dropped Server to Client", packet_server.sequence, packet_server.payload, 1);
 
             }
@@ -457,7 +451,6 @@ static void delay_packet(packet_t *packet, int delay_min, int delay_max, delayed
         strcpy(direction, "Client to Server");
     }
 
-    printf("Delaying %s packet %d\n", direction, packet->sequence);
     log_event(LOG_PROXY, "Delayed %s packet %d %s\n", direction, packet->sequence, packet->payload);
 
     struct timeval now;
@@ -498,7 +491,6 @@ static void process_delay_queue(int sock_fd, delayed_packet_t **queue, struct so
         delayed_packet_t *delayed_packet = *queue;
 
         if (timercmp(&now, &delayed_packet->send_time, >=)) {
-            printf("Sending delayed packet %d from %s\n", delayed_packet->packet.sequence, direction);
             send_packet(sock_fd, &delayed_packet->packet, dest_addr, addr_len);
             log_event(LOG_PROXY, "Sent delayed packet %s %d %s\n", direction, delayed_packet->packet.sequence, delayed_packet->packet.payload);
             *queue = delayed_packet->next;

@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
         
         if(receive_packet(sock_fd, &packet, &client_addr, &client_addr_len)){
 
-            printf("Received Packet %d\n", packet.sequence);
             log_packet(LOG_SERVER, "Received", packet.sequence, packet.payload, 0);
 
 
@@ -158,13 +157,10 @@ static int receive_packet(int sock_fd, packet_t *packet, struct sockaddr_storage
 static int handle_packet(packet_t *packet, int *sequence_counter) {
     
     if(packet->sequence < *sequence_counter) {
-        printf("Received old sequence number: %d, no ack sent, dropping\n", packet->sequence);
         return 0;
     } else if (packet->sequence == *sequence_counter) {
-        printf("Received duplicate of current sequence number: %d, resending ack\n", packet->sequence);
         return 1;
     } else {
-        printf("Packet %d: %s\n", packet->sequence, packet->payload);
         log_event(LOG_SERVER, "Server printed out received message: %s", packet->payload);
         (*sequence_counter)++;
         return 1;
@@ -177,7 +173,6 @@ static void send_ack(int sock_fd, int sequence_num, packet_t *ack_packet, struct
     ack_packet->payload[LINE_LEN - 1] = '\0';
 
     ssize_t bytes_sent = sendto(sock_fd, ack_packet, sizeof(*ack_packet), 0, (struct sockaddr *)client_addr, *client_addr_len);
-    printf("Sent Ack packet: %d:%s\n", ack_packet->sequence, ack_packet->payload);
     log_packet(LOG_SERVER, "Sent", ack_packet->sequence, ack_packet->payload, 1);
 
 

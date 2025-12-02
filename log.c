@@ -46,6 +46,20 @@ void log_packet(log_source_t src, const char *action, int sequence, const char *
     }
 
     fflush(log_file);
+
+    fprintf(
+        stderr,
+        "%ld %s %s %d %s\n",
+        now,
+        source_to_string(src),
+        action,
+        sequence,
+        message
+    );
+    if (new_line){
+        fprintf(stderr, "\n");
+    }
+    fflush(stderr);
 }
 
 
@@ -62,4 +76,11 @@ void log_event(log_source_t src, const char *text, ...) {
 
     fprintf(log_file, "\n");
     fflush(log_file);
+
+    fprintf(stderr, "%ld %s ", now, source_to_string(src));
+    va_start(args, text);  // restart args for stderr
+    vfprintf(stderr, text, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    fflush(stderr);
 }
