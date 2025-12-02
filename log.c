@@ -15,7 +15,7 @@ static const char *source_to_string(log_source_t src) {
 }
 
 void log_init(const char *filename) {
-    log_file = fopen(filename, "a");
+    log_file = fopen(filename, "w");
     if (!log_file) {
         perror("Failed to open log file");
         exit(EXIT_FAILURE);
@@ -41,6 +41,7 @@ void log_packet(log_source_t src, const char *action, int sequence, const char *
         message
     );
 
+    fprintf(log_file, "\n");
     fflush(log_file);
 }
 

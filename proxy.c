@@ -257,6 +257,7 @@ static void parse_args(int argc,char *argv[], char **listen_ip_str, char **liste
     int client_delay_max_set = 0;
     int server_delay_min_set = 0;
     int server_delay_max_set = 0;
+    int log_set = 0;
 
     static struct option long_options[] = {
         {"listen-ip", required_argument, 0, 1},
@@ -271,7 +272,8 @@ static void parse_args(int argc,char *argv[], char **listen_ip_str, char **liste
         {"client-delay-time-max", required_argument, 0, 10},
         {"server-delay-time-min", required_argument, 0, 11},
         {"server-delay-time-max", required_argument, 0, 12},
-        {"help", required_argument, 0, 'h'},
+        {"log", no_argument, 0, 'l'},
+        {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
@@ -363,6 +365,13 @@ static void parse_args(int argc,char *argv[], char **listen_ip_str, char **liste
                 *server_delay_max_time_str = optarg;
                 server_delay_max_set = 1;
                 break;
+            case 'l':
+                if(log_set) {
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --log/-l");
+                }
+                log_init("proxy_log.txt");
+                log_set = 1;
+                break;
             case 'h':
                 usage(argv[0], EXIT_SUCCESS, NULL);
                 break;
@@ -416,6 +425,8 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
 
     fputs("  --server-delay-time-min <ms>     Minimum delay time (ms) for server packets\n", stderr);
     fputs("  --server-delay-time-max <ms>     Maximum delay time (ms) for server packets\n", stderr);
+
+    fputs("  -l, --log                        Enables logging\n", stderr);
     fputs("  -h, --help                       Display this help message\n", stderr);
     exit(exit_code);
 }

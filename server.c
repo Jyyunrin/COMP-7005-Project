@@ -66,11 +66,13 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
     int option_index = 0;
     int ip_set = 0;
     int port_set = 0;
+    int log_set = 0;
 
     static struct option long_options[] = {
         {"listen-ip", required_argument, 0, 1},
         {"listen-port", required_argument, 0, 2},
-        {"help", required_argument, 0, 'h'},
+        {"log", no_argument, 0, 'l'},
+        {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
@@ -91,6 +93,13 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
                 }
                 *port_str = optarg;
                 port_set = 1;
+                break;
+            case 'l':
+                if(log_set) {
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --log/-l");
+                }
+                log_init("server_log.txt");
+                log_set = 1;
                 break;
             case 'h':
                 usage(argv[0], EXIT_SUCCESS, NULL);
@@ -124,6 +133,7 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
     fputs("Options:\n", stderr);
     fputs("  --listen-ip <ip>         IP address to bind to\n", stderr);
     fputs("  --listen-port <port>     UDP port to listen on\n", stderr);
+    fputs("  -l, --log                Enables logging\n", stderr);
     fputs("  -h, --help               Display this help message\n", stderr);
     exit(exit_code);
 }

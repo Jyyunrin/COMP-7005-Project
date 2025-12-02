@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
     sequence_counter = 0;
     succesfully_received = 0;
 
-    log_init("client_log.txt");
     setup_signal_handler();
     parse_args(argc, argv, &ip_address, &port_str, &timeout_str, &max_retries_str);
 
@@ -83,6 +82,7 @@ int main(int argc, char *argv[]) {
             log_event(LOG_CLIENT, "Sending Packet %d:%s, attempt %d", packet.sequence, packet.payload, attempt);
 
             send_packet(sock_fd, &packet, (struct sockaddr *)&addr, addr_len);
+            log_packet(LOG_CLIENT, "Sent", packet.sequence, packet.payload);
 
             if(receive_acknowledgement(sock_fd, &ack_packet, (struct sockaddr *)&addr, &addr_len, &sequence_counter)){
                 succesfully_received = 1;
@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
 
         if(!succesfully_received) {
             fprintf(stderr, "Failed to receive ACK for packet %d after %d attempts\n", packet.sequence, max_retries + 1);
+            log_event(LOG_CLIENT, "Failed to receive ACK for packet %d after %d attempts\n", packet.sequence, max_retries + 1);
             sequence_counter++;
         }
     }
@@ -109,13 +110,15 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
     int port_set = 0;
     int timeout_set = 0;
     int retries_set = 0;
+    int log_set = 0;
 
     static struct option long_options[] = {
         {"target-ip", required_argument, 0, 1},
         {"target-port", required_argument, 0, 2},
         {"timeout", required_argument, 0, 3},
         {"max-retries", required_argument, 0, 4},
-        {"help", required_argument, 0, 'h'},
+        {"log", no_argument, 0, 'l'},
+        {"help", no_argument, 0, 'h'},
         {0, 0, 0, 0}
     };
 
@@ -151,6 +154,13 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
                 *max_retries_str = optarg;
                 retries_set = 1;
                 break;
+            case 'l':
+                if(log_set) {
+                    usage(argv[0], EXIT_FAILURE, "Duplicate option: --log/-l");
+                }
+                log_init("client_log.txt");
+                log_set = 1;
+                break;
             case 'h':
                 usage(argv[0], EXIT_SUCCESS, NULL);
                 break;
@@ -185,6 +195,7 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
     fputs("  --target-port <port>     UDP port to listen on\n", stderr);
     fputs("  --timeout <seconds>      Timeout for client messaging\n", stderr);
     fputs("  --max-retries <number>   Maximum resend attempts\n", stderr);
+    fputs("  -l, --log                Enables logging\n", stderr);
     fputs("  -h, --help               Display this help message\n", stderr);
     exit(exit_code);
 }
@@ -261,6 +272,7 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
 
             (*current_sequence)++;
             printf("%s received for packet %d\n", ack_packet->payload, ack_packet->sequence);
+            log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload);
             return 1;
 
         } else {
@@ -278,3 +290,6 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
     }
 
 }
+
+// log_packet(log_source_t src, const char *action, int sequence, const char *message)
+// log_event (log_event(log_source_t src, const char *text, ...)

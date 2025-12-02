@@ -1,12 +1,31 @@
-1764501283 CLIENT Sending Packet 0:Hello, attempt 0
-1764501289 CLIENT Sending Packet 0:Hello, attempt 1
-1764501296 CLIENT Sending Packet 0:Hello, attempt 2
-1764501302 CLIENT Sending Packet 0:Hello, attempt 3
-1764501308 CLIENT Sending Packet 0:Hello, attempt 4
-1764501314 CLIENT Sending Packet 0:Hello, attempt 5
-1764501328 CLIENT Sending Packet 1:BB, attempt 0
-1764501334 CLIENT Sending Packet 1:BB, attempt 1
-1764501341 CLIENT Sending Packet 1:BB, attempt 2
-1764501347 CLIENT Sending Packet 1:BB, attempt 3
-1764501353 CLIENT Sending Packet 1:BB, attempt 4
-1764501359 CLIENT Sending Packet 1:BB, attempt 5
+1764638644 CLIENT Sending Packet 0:Hello, attempt 0
+1764638644 CLIENT Sent 0 Hello
+1764638647 CLIENT Sending Packet 0:Hello, attempt 1
+1764638647 CLIENT Sent 0 Hello
+1764638650 CLIENT Sending Packet 0:Hello, attempt 2
+1764638650 CLIENT Sent 0 Hello
+1764638653 CLIENT Sending Packet 0:Hello, attempt 3
+1764638653 CLIENT Sent 0 Hello
+1764638656 CLIENT Sending Packet 0:Hello, attempt 4
+1764638656 CLIENT Sent 0 Hello
+1764638659 CLIENT Sending Packet 0:Hello, attempt 5
+1764638659 CLIENT Sent 0 Hello
+1764638662 CLIENT Failed to receive ACK for packet 0 after 6 attempts
+
+1764638667 CLIENT Sending Packet 1:[A, attempt 0
+1764638667 CLIENT Sent 1 [A
+1764638670 CLIENT Sending Packet 1:[A, attempt 1
+1764638670 CLIENT Sent 1 [A
+1764638670 CLIENT Received 1 Acknowledged
+1764638676 CLIENT Sending Packet 2:Wow, attempt 0
+1764638676 CLIENT Sent 2 Wow
+1764638679 CLIENT Sending Packet 2:Wow, attempt 1
+1764638679 CLIENT Sent 2 Wow
+1764638682 CLIENT Sending Packet 2:Wow, attempt 2
+1764638682 CLIENT Sent 2 Wow
+1764638684 CLIENT Received 2 Wow
+1764638690 CLIENT Sending Packet 3:Lets go, attempt 0
+1764638690 CLIENT Sent 3 Lets go
+1764638693 CLIENT Sending Packet 3:Lets go, attempt 1
+1764638693 CLIENT Sent 3 Lets go
+1764638694 CLIENT Received 3 Lets go
