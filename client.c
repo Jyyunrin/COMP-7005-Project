@@ -3,7 +3,7 @@
 
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str, char **timeout_str, char **max_retries_str);
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
-static void parse_parameters(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries);
+static void parse_timeout_and_retries(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries);
 static int fill_packet(packet_t *packet, int seq);
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence);
 
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
     parse_port(port_str, &port);
 
-    parse_parameters(timeout_str, max_retries_str, &timeout, &max_retries);
+    parse_timeout_and_retries(timeout_str, max_retries_str, &timeout, &max_retries);
 
     sock_fd = create_socket(addr.ss_family, SOCK_DGRAM, 0);
     get_address_to_server(&addr, port);
@@ -183,7 +183,7 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
     exit(exit_code);
 }
 
-static void parse_parameters(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries) {
+static void parse_timeout_and_retries(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries) {
 
     char *endptr;
     uintmax_t parsed_timeout;
@@ -229,21 +229,28 @@ static int fill_packet(packet_t *packet, int seq) {
 
     char message[LINE_LEN];
 
-    printf("Please type a message to send to the server: ");
-    fflush(stdout);
+    while(!exit_flag) {
+        printf("Please type a message to send to the server: ");
+        fflush(stdout);
 
-    if(fgets(message, sizeof(message), stdin) == NULL) {
-        printf("\n");
-        return 0;
+        if(fgets(message, sizeof(message), stdin) == NULL) {
+            printf("\n");
+            return 0;
+        }
+
+        message[strcspn(message, "\n")] = '\0';
+
+        if (message[0] == '\0') {
+            printf("No message entered. Please try again.\n");
+            continue;
+        }
+        
+        packet->sequence = seq;
+        strncpy(packet->payload, message, LINE_LEN);
+        packet->payload[LINE_LEN - 1] = '\0';
+
+        return 1;
     }
-
-    message[strcspn(message, "\n")] = '\0';
-    
-    packet->sequence = seq;
-    strncpy(packet->payload, message, LINE_LEN);
-    packet->payload[LINE_LEN - 1] = '\0';
-
-    return 1;
 }
 
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence) {
@@ -255,11 +262,10 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
 
             (*current_sequence)++;
             log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload, 0);
-            log_event(LOG_CLIENT, "Printed out received acknowledgement: %s\n", ack_packet->payload);
+            log_event(LOG_CLIENT, "Acknowledgement: %s from Packet %d\n", ack_packet->payload, ack_packet->sequence);
             return 1;
 
         } else {
-            
             return 0;
         }
     } else {

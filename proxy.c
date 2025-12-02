@@ -451,7 +451,7 @@ static void delay_packet(packet_t *packet, int delay_min, int delay_max, delayed
         strcpy(direction, "Client to Server");
     }
 
-    log_event(LOG_PROXY, "Delayed %s packet %d %s\n", direction, packet->sequence, packet->payload);
+    log_event(LOG_PROXY, "Delayed %s packet %d\n", direction, packet->sequence);
 
     struct timeval now;
     struct timeval send_time;
@@ -492,7 +492,7 @@ static void process_delay_queue(int sock_fd, delayed_packet_t **queue, struct so
 
         if (timercmp(&now, &delayed_packet->send_time, >=)) {
             send_packet(sock_fd, &delayed_packet->packet, dest_addr, addr_len);
-            log_event(LOG_PROXY, "Sent delayed packet %s %d %s\n", direction, delayed_packet->packet.sequence, delayed_packet->packet.payload);
+            log_event(LOG_PROXY, "Sent delayed packet %s %d\n", direction, delayed_packet->packet.sequence);
             *queue = delayed_packet->next;
             free(delayed_packet);
         } else {

@@ -33,12 +33,11 @@ void log_packet(log_source_t src, const char *action, int sequence, const char *
 
     fprintf(
         log_file,
-        "%ld %s %s %d %s\n",
+        "%ld %s %s Packet %d\n",
         now,
         source_to_string(src),
         action,
-        sequence,
-        message
+        sequence
     );
 
     if (new_line){
@@ -49,12 +48,11 @@ void log_packet(log_source_t src, const char *action, int sequence, const char *
 
     fprintf(
         stderr,
-        "%ld %s %s %d %s\n",
+        "%ld %s %s Packet %d\n",
         now,
         source_to_string(src),
         action,
-        sequence,
-        message
+        sequence
     );
     if (new_line){
         fprintf(stderr, "\n");

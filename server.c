@@ -37,8 +37,6 @@ int main(int argc, char *argv[]) {
 
     bind_socket(sock_fd, &addr, port);
 
-    printf("Listening for connections...\n");
-
     while(!exit_flag) {
         
         if(receive_packet(sock_fd, &packet, &client_addr, &client_addr_len)){
@@ -161,7 +159,7 @@ static int handle_packet(packet_t *packet, int *sequence_counter) {
     } else if (packet->sequence == *sequence_counter) {
         return 1;
     } else {
-        log_event(LOG_SERVER, "Server printed out received message: %s", packet->payload);
+        log_event(LOG_SERVER, "Message: %s from Packet %d", packet->payload, packet->sequence);
         (*sequence_counter)++;
         return 1;
     }

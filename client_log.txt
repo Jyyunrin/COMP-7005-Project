@@ -1,28 +1,15 @@
-1764665092 CLIENT Sending Packet 0, Attempt 1
-1764665092 CLIENT Sent 0 Hello
-1764665095 CLIENT Sending Packet 0, Attempt 2
-1764665095 CLIENT Sent 0 Hello
-1764665098 CLIENT Sending Packet 0, Attempt 3
-1764665098 CLIENT Sent 0 Hello
-1764665101 CLIENT Sending Packet 0, Attempt 4
-1764665101 CLIENT Sent 0 Hello
-1764665104 CLIENT Sending Packet 0, Attempt 5
-1764665104 CLIENT Sent 0 Hello
-1764665107 CLIENT Sending Packet 0, Attempt 6
-1764665107 CLIENT Sent 0 Hello
-1764665109 CLIENT Received 0 Acknowledged
-1764665109 CLIENT Printed out received acknowledgement: Acknowledged
+1764669350 CLIENT Sending Packet 0, Attempt 1
+1764669350 CLIENT Sent Packet 0
+1764669353 CLIENT Sending Packet 0, Attempt 2
+1764669353 CLIENT Sent Packet 0
+1764669356 CLIENT Sending Packet 0, Attempt 3
+1764669356 CLIENT Sent Packet 0
+1764669359 CLIENT Sending Packet 0, Attempt 4
+1764669359 CLIENT Sent Packet 0
+1764669362 CLIENT Sending Packet 0, Attempt 5
+1764669362 CLIENT Sent Packet 0
+1764669365 CLIENT Sending Packet 0, Attempt 6
+1764669365 CLIENT Sent Packet 0
+1764669365 CLIENT Received Packet 0
+1764669365 CLIENT Acknowledgement: Acknowledged from Packet 0
 
-1764665180 CLIENT Sending Packet 1, Attempt 1
-1764665180 CLIENT Sent 1 Why
-1764665180 CLIENT Sending Packet 1, Attempt 2
-1764665180 CLIENT Sent 1 Why
-1764665183 CLIENT Sending Packet 1, Attempt 3
-1764665183 CLIENT Sent 1 Why
-1764665185 CLIENT Received 1 Acknowledged
-1764665185 CLIENT Printed out received acknowledgement: Acknowledged
-
-1764665223 CLIENT Sending Packet 2, Attempt 1
-1764665223 CLIENT Sent 2 make clean
-1764665226 CLIENT Sending Packet 2, Attempt 2
-1764665226 CLIENT Sent 2 make clean
