@@ -37,6 +37,8 @@ int main(int argc, char *argv[]) {
 
     bind_socket(sock_fd, &addr, port);
 
+    printf("Listening for connections...\n");
+
     while(!exit_flag) {
         
         if(receive_packet(sock_fd, &packet, &client_addr, &client_addr_len)){
@@ -135,8 +137,6 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char*
 }
 
 static int receive_packet(int sock_fd, packet_t *packet, struct sockaddr_storage *client_addr, socklen_t *client_addr_len) {
-
-    printf("Listening for connections...\n");
     
     ssize_t bytes_received = recvfrom(sock_fd, packet, sizeof(*packet), 0, (struct sockaddr *)client_addr, client_addr_len);
 
