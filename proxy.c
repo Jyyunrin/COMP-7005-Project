@@ -279,7 +279,7 @@ static void parse_args(int argc,char *argv[], char **listen_ip_str, char **liste
 
     opterr = 0;
 
-    while((opt = getopt_long(argc, argv, "h", long_options, &option_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "hl", long_options, &option_index)) != -1) {
         switch(opt){
             case 1:
                 if(listen_ip_set){

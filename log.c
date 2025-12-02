@@ -26,7 +26,7 @@ void log_close() {
     if (log_file) fclose(log_file);
 }
 
-void log_packet(log_source_t src, const char *action, int sequence, const char *message) {
+void log_packet(log_source_t src, const char *action, int sequence, const char *message, int new_line) {
     if (!log_file) return;
 
     time_t now = time(NULL);
@@ -41,7 +41,10 @@ void log_packet(log_source_t src, const char *action, int sequence, const char *
         message
     );
 
-    fprintf(log_file, "\n");
+    if (new_line){
+        fprintf(log_file, "\n");
+    }
+
     fflush(log_file);
 }
 

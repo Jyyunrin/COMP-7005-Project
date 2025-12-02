@@ -1,0 +1,59 @@
+1764640749 SERVER Received 0 Hello
+1764640749 SERVER Server printed out received message: Hello
+1764640749 SERVER Sent 0 Acknowledged
+
+1764640756 SERVER Received 0 Hello
+1764640756 SERVER Sent 0 Acknowledged
+
+1764640775 SERVER Received 1 Wow
+1764640775 SERVER Server printed out received message: Wow
+1764640775 SERVER Sent 1 Acknowledged
+
+1764640799 SERVER Received 2 Damn son
+1764640799 SERVER Server printed out received message: Damn son
+1764640799 SERVER Sent 2 Acknowledged
+
+1764640799 SERVER Received 2 Damn son
+1764640799 SERVER Sent 2 Acknowledged
+
+1764640809 SERVER Received 3 Wowowow
+1764640809 SERVER Server printed out received message: Wowowow
+1764640809 SERVER Sent 3 Acknowledged
+
+1764640818 SERVER Received 3 Wowowow
+1764640818 SERVER Sent 3 Acknowledged
+
+1764640819 SERVER Received 3 Wowowow
+1764640819 SERVER Sent 3 Acknowledged
+
+1764640826 SERVER Received 4 In the end
+1764640826 SERVER Server printed out received message: In the end
+1764640826 SERVER Sent 4 Acknowledged
+
+1764640830 SERVER Received 4 In the end
+1764640830 SERVER Sent 4 Acknowledged
+
+1764640837 SERVER Received 4 In the end
+1764640837 SERVER Sent 4 Acknowledged
+
+1764640838 SERVER Received 4 In the end
+1764640838 SERVER Sent 4 Acknowledged
+
+1764640853 SERVER Received 5 Trying to fail
+1764640853 SERVER Server printed out received message: Trying to fail
+1764640853 SERVER Sent 5 Acknowledged
+
+1764640858 SERVER Received 6 Its not failing
+1764640858 SERVER Server printed out received message: Its not failing
+1764640858 SERVER Sent 6 Acknowledged
+
+1764640863 SERVER Received 6 Its not failing
+1764640863 SERVER Sent 6 Acknowledged
+
+1764640888 SERVER Received 7 This is crazy
+1764640888 SERVER Server printed out received message: This is crazy
+1764640888 SERVER Sent 7 Acknowledged
+
+1764640898 SERVER Received 7 This is crazy
+1764640898 SERVER Sent 7 Acknowledged
+

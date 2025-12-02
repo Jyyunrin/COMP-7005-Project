@@ -29,18 +29,18 @@ int main(int argc, char *argv[]) {
     setup_signal_handler();
     parse_args(argc, argv, &ip_address, &port_str);
 
-    printf("ip address: %s\n", ip_address);
-    printf("port_str: %s\n", port_str);
+    // printf("ip address: %s\n", ip_address);
+    // printf("port_str: %s\n", port_str);
 
     convert_address(ip_address, &addr, &addr_len);
 
     parse_port(port_str, &port);
 
-    printf("Port: %d\n", port);
+    // printf("Port: %d\n", port);
 
     sock_fd = create_socket(addr.ss_family, SOCK_DGRAM, 0);
 
-    printf("Server address family: %d\n", addr.ss_family);
+    // printf("Server address family: %d\n", addr.ss_family);
 
     bind_socket(sock_fd, &addr, port);
 
@@ -49,6 +49,8 @@ int main(int argc, char *argv[]) {
         if(receive_packet(sock_fd, &packet, &client_addr, &client_addr_len)){
 
             printf("Received Packet %d\n", packet.sequence);
+            log_packet(LOG_SERVER, "Received", packet.sequence, packet.payload, 0);
+
 
             if(handle_packet(&packet, &sequence_counter)) {
                 send_ack(sock_fd, sequence_counter, &ack_packet, &client_addr, &client_addr_len);
@@ -58,6 +60,8 @@ int main(int argc, char *argv[]) {
     }
 
     close_socket(sock_fd);
+    log_close();
+    exit(EXIT_SUCCESS);
 
 }
 
@@ -78,7 +82,7 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
 
     opterr = 0;
 
-    while((opt = getopt_long(argc, argv, "h", long_options, &option_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "hl", long_options, &option_index)) != -1) {
         switch(opt){
             case 1:
                 if(ip_set){
@@ -168,6 +172,7 @@ static int handle_packet(packet_t *packet, int *sequence_counter) {
         return 1;
     } else {
         printf("Packet %d: %s\n", packet->sequence, packet->payload);
+        log_event(LOG_SERVER, "Server printed out received message: %s", packet->payload);
         (*sequence_counter)++;
         return 1;
     }
@@ -179,6 +184,9 @@ static void send_ack(int sock_fd, int sequence_num, packet_t *ack_packet, struct
     ack_packet->payload[LINE_LEN - 1] = '\0';
 
     ssize_t bytes_sent = sendto(sock_fd, ack_packet, sizeof(*ack_packet), 0, (struct sockaddr *)client_addr, *client_addr_len);
+    printf("Sent Ack packet: %d:%s\n", ack_packet->sequence, ack_packet->payload);
+    log_packet(LOG_SERVER, "Sent", ack_packet->sequence, ack_packet->payload, 1);
+
 
     if(bytes_sent == -1) {
         perror("Error sending packet to client");

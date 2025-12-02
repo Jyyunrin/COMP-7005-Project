@@ -13,7 +13,7 @@ typedef enum {
 
 void log_init(const char *filename);
 void log_close();
-void log_packet(log_source_t src, const char *action, int sequence, const char *message);
+void log_packet(log_source_t src, const char *action, int sequence, const char *message, int new_line);
 void log_event(log_source_t src, const char *text, ...);
 
 #endif

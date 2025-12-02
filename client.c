@@ -78,11 +78,11 @@ int main(int argc, char *argv[]) {
 
         for (int attempt = 0; attempt <= max_retries; attempt++) {
 
-            printf("Sending Packet %d:%s, attempt %d\n", packet.sequence, packet.payload, attempt);
-            log_event(LOG_CLIENT, "Sending Packet %d:%s, attempt %d", packet.sequence, packet.payload, attempt);
+            printf("Sending Packet %d: %s, attempt %d\n", packet.sequence, packet.payload, attempt + 1);
+            log_event(LOG_CLIENT, "Sending Packet %d: %s, attempt %d", packet.sequence, packet.payload, attempt + 1);
 
             send_packet(sock_fd, &packet, (struct sockaddr *)&addr, addr_len);
-            log_packet(LOG_CLIENT, "Sent", packet.sequence, packet.payload);
+            log_packet(LOG_CLIENT, "Sent", packet.sequence, packet.payload, 0);
 
             if(receive_acknowledgement(sock_fd, &ack_packet, (struct sockaddr *)&addr, &addr_len, &sequence_counter)){
                 succesfully_received = 1;
@@ -100,6 +100,7 @@ int main(int argc, char *argv[]) {
     }
 
     close_socket(sock_fd);
+    log_close();
     return EXIT_SUCCESS;
 }
 
@@ -124,7 +125,7 @@ static void parse_args(int argc,char *argv[], char **ip_address, char **port_str
 
     opterr = 0;
 
-    while((opt = getopt_long(argc, argv, "h", long_options, &option_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "hl", long_options, &option_index)) != -1) {
         switch(opt){
             case 1:
                 if(ip_set){
@@ -272,7 +273,8 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
 
             (*current_sequence)++;
             printf("%s received for packet %d\n", ack_packet->payload, ack_packet->sequence);
-            log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload);
+            log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload, 0);
+            log_event(LOG_CLIENT, "Printed out received acknowledgement: %s\n", ack_packet->payload);
             return 1;
 
         } else {

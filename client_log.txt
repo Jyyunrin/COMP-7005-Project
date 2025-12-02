@@ -1,31 +1,93 @@
-1764638644 CLIENT Sending Packet 0:Hello, attempt 0
-1764638644 CLIENT Sent 0 Hello
-1764638647 CLIENT Sending Packet 0:Hello, attempt 1
-1764638647 CLIENT Sent 0 Hello
-1764638650 CLIENT Sending Packet 0:Hello, attempt 2
-1764638650 CLIENT Sent 0 Hello
-1764638653 CLIENT Sending Packet 0:Hello, attempt 3
-1764638653 CLIENT Sent 0 Hello
-1764638656 CLIENT Sending Packet 0:Hello, attempt 4
-1764638656 CLIENT Sent 0 Hello
-1764638659 CLIENT Sending Packet 0:Hello, attempt 5
-1764638659 CLIENT Sent 0 Hello
-1764638662 CLIENT Failed to receive ACK for packet 0 after 6 attempts
+1764640747 CLIENT Sending Packet 0:Hello, attempt 0
+1764640747 CLIENT Sent 0 Hello
+1764640750 CLIENT Sending Packet 0:Hello, attempt 1
+1764640750 CLIENT Sent 0 Hello
+1764640753 CLIENT Sending Packet 0:Hello, attempt 2
+1764640753 CLIENT Sent 0 Hello
+1764640756 CLIENT Sending Packet 0:Hello, attempt 3
+1764640756 CLIENT Sent 0 Hello
+1764640756 CLIENT Received 0 Acknowledged
+1764640756 CLIENT Printed out received acknowledgement: Acknowledged
 
-1764638667 CLIENT Sending Packet 1:[A, attempt 0
-1764638667 CLIENT Sent 1 [A
-1764638670 CLIENT Sending Packet 1:[A, attempt 1
-1764638670 CLIENT Sent 1 [A
-1764638670 CLIENT Received 1 Acknowledged
-1764638676 CLIENT Sending Packet 2:Wow, attempt 0
-1764638676 CLIENT Sent 2 Wow
-1764638679 CLIENT Sending Packet 2:Wow, attempt 1
-1764638679 CLIENT Sent 2 Wow
-1764638682 CLIENT Sending Packet 2:Wow, attempt 2
-1764638682 CLIENT Sent 2 Wow
-1764638684 CLIENT Received 2 Wow
-1764638690 CLIENT Sending Packet 3:Lets go, attempt 0
-1764638690 CLIENT Sent 3 Lets go
-1764638693 CLIENT Sending Packet 3:Lets go, attempt 1
-1764638693 CLIENT Sent 3 Lets go
-1764638694 CLIENT Received 3 Lets go
+1764640766 CLIENT Sending Packet 1:Wow, attempt 0
+1764640766 CLIENT Sent 1 Wow
+1764640769 CLIENT Sending Packet 1:Wow, attempt 1
+1764640769 CLIENT Sent 1 Wow
+1764640772 CLIENT Sending Packet 1:Wow, attempt 2
+1764640772 CLIENT Sent 1 Wow
+1764640775 CLIENT Sending Packet 1:Wow, attempt 3
+1764640775 CLIENT Sent 1 Wow
+1764640778 CLIENT Sending Packet 1:Wow, attempt 4
+1764640778 CLIENT Sent 1 Wow
+1764640780 CLIENT Received 1 Wow
+1764640780 CLIENT Printed out received acknowledgement: Wow
+
+1764640792 CLIENT Sending Packet 2:Damn son, attempt 0
+1764640792 CLIENT Sent 2 Damn son
+1764640795 CLIENT Sending Packet 2:Damn son, attempt 1
+1764640795 CLIENT Sent 2 Damn son
+1764640798 CLIENT Sending Packet 2:Damn son, attempt 2
+1764640798 CLIENT Sent 2 Damn son
+1764640799 CLIENT Received 2 Acknowledged
+1764640799 CLIENT Printed out received acknowledgement: Acknowledged
+
+1764640807 CLIENT Sending Packet 3:Wowowow, attempt 0
+1764640807 CLIENT Sent 3 Wowowow
+1764640807 CLIENT Sending Packet 3:Wowowow, attempt 1
+1764640807 CLIENT Sent 3 Wowowow
+1764640810 CLIENT Sending Packet 3:Wowowow, attempt 2
+1764640810 CLIENT Sent 3 Wowowow
+1764640813 CLIENT Sending Packet 3:Wowowow, attempt 3
+1764640813 CLIENT Sent 3 Wowowow
+1764640816 CLIENT Sending Packet 3:Wowowow, attempt 4
+1764640816 CLIENT Sent 3 Wowowow
+1764640819 CLIENT Sending Packet 3:Wowowow, attempt 5
+1764640819 CLIENT Sent 3 Wowowow
+1764640821 CLIENT Received 3 Acknowledged
+1764640821 CLIENT Printed out received acknowledgement: Acknowledged
+
+1764640826 CLIENT Sending Packet 4:In the end, attempt 0
+1764640826 CLIENT Sent 4 In the end
+1764640829 CLIENT Sending Packet 4:In the end, attempt 1
+1764640829 CLIENT Sent 4 In the end
+1764640832 CLIENT Sending Packet 4:In the end, attempt 2
+1764640832 CLIENT Sent 4 In the end
+1764640835 CLIENT Sending Packet 4:In the end, attempt 3
+1764640835 CLIENT Sent 4 In the end
+1764640838 CLIENT Sending Packet 4:In the end, attempt 4
+1764640838 CLIENT Sent 4 In the end
+1764640838 CLIENT Received 4 Acknowledged
+1764640838 CLIENT Printed out received acknowledgement: Acknowledged
+
+1764640845 CLIENT Sending Packet 5:Trying to fail, attempt 0
+1764640845 CLIENT Sent 5 Trying to fail
+1764640848 CLIENT Sending Packet 5:Trying to fail, attempt 1
+1764640848 CLIENT Sent 5 Trying to fail
+1764640851 CLIENT Sending Packet 5:Trying to fail, attempt 2
+1764640851 CLIENT Sent 5 Trying to fail
+1764640854 CLIENT Sending Packet 5:Trying to fail, attempt 3
+1764640854 CLIENT Sent 5 Trying to fail
+1764640854 CLIENT Received 5 Acknowledged
+1764640854 CLIENT Printed out received acknowledgement: Acknowledged
+
+1764640858 CLIENT Sending Packet 6:Its not failing, attempt 0
+1764640858 CLIENT Sent 6 Its not failing
+1764640861 CLIENT Sending Packet 6:Its not failing, attempt 1
+1764640861 CLIENT Sent 6 Its not failing
+1764640863 CLIENT Received 6 Its not failing
+1764640863 CLIENT Printed out received acknowledgement: Its not failing
+
+1764640883 CLIENT Sending Packet 7:This is crazy, attempt 0
+1764640883 CLIENT Sent 7 This is crazy
+1764640886 CLIENT Sending Packet 7:This is crazy, attempt 1
+1764640886 CLIENT Sent 7 This is crazy
+1764640889 CLIENT Sending Packet 7:This is crazy, attempt 2
+1764640889 CLIENT Sent 7 This is crazy
+1764640892 CLIENT Sending Packet 7:This is crazy, attempt 3
+1764640892 CLIENT Sent 7 This is crazy
+1764640895 CLIENT Sending Packet 7:This is crazy, attempt 4
+1764640895 CLIENT Sent 7 This is crazy
+1764640898 CLIENT Sending Packet 7:This is crazy, attempt 5
+1764640898 CLIENT Sent 7 This is crazy
+1764640901 CLIENT Failed to receive ACK for packet 7 after 6 attempts
+
