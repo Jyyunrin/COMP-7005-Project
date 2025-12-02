@@ -35,7 +35,7 @@ fig, ax = plt.subplots(figsize=(8, 6))
 
 def read_and_process_logs():
 
-    is_proxy = log_file.startswith("proxy")
+    is_proxy = "proxy" in log_file
 
     if is_proxy:
         sent = Counter()
