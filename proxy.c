@@ -19,6 +19,7 @@ static void parse_args(int argc,char *argv[], char **listen_ip_str, char **liste
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
 static int parse_int_param(const char *str, const char *name);
 static int determine_noise(const int drop_chance, const int delay_chance);
+static void delay_packet(packet_t *packet, int delay_min, int delay_max, delayed_packet_t **delay_queue, int queue_direction); 
 static int determine_delay(const int min_time, const int max_time);
 static void add_to_delay_queue(delayed_packet_t **queue, delayed_packet_t *new_node);
 static void process_delay_queue(int sock_fd, delayed_packet_t **queue, struct sockaddr *dest_addr, socklen_t addr_len, int queue_direction);
@@ -82,27 +83,11 @@ int main(int argc, char *argv[]) {
     parse_args(argc, argv, &listen_ip_str, &listen_port_str, &target_ip_str, &target_port_str, &client_drop_str, &server_drop_str, &client_delay_str,
             &server_delay_str, &client_delay_min_time_str, &client_delay_max_time_str, &server_delay_min_time_str, &server_delay_max_time_str);
 
-    // printf("listen_ip: %s\n", listen_ip_str);
-    // printf("listen_port: %s\n", listen_port_str);
-    // printf("target_ip: %s\n", target_ip_str);
-    // printf("target_port: %s\n", target_port_str);
-    // printf("client_drop: %s\n", client_drop_str);
-    // printf("server_drop: %s\n", server_drop_str);
-    // printf("client_delay: %s\n", client_delay_str);
-    // printf("server_delay: %s\n", server_delay_str);
-    // printf("client_delay_min_time: %s\n", client_delay_min_time_str);
-    // printf("client_delay_max_time: %s\n", client_delay_max_time_str);
-    // printf("server_delay_min_time: %s\n", server_delay_min_time_str);
-    // printf("server_delay_max_time: %s\n", server_delay_max_time_str);
-
     convert_address(listen_ip_str, &listen_ip, &listen_ip_len);
     convert_address(target_ip_str, &target_ip, &target_ip_len);
 
     parse_port(listen_port_str, &listen_port);
     parse_port(target_port_str, &target_port);
-
-    // printf("Listen Port: %d\n", listen_port);
-    // printf("Target Port: %d\n", target_port);
 
     client_drop         = parse_int_param(client_drop_str, "client-drop");
     server_drop         = parse_int_param(server_drop_str, "server-drop");
@@ -121,13 +106,7 @@ int main(int argc, char *argv[]) {
     client_sock_fd = create_socket(listen_ip.ss_family, SOCK_DGRAM, 0);
     server_sock_fd = create_socket(target_ip.ss_family, SOCK_DGRAM, 0);
 
-    // printf("Client Socket: %d\n", client_sock_fd);
-    // printf("Server Socket: %d\n", server_sock_fd);
-
-    // Bind listening socket to listening ip:port
     bind_socket(client_sock_fd, &listen_ip, listen_port);
-
-    // Get server ip address
     get_address_to_server(&target_ip, target_port);
 
     if (setsockopt(client_sock_fd, SOL_SOCKET, SO_RCVTIMEO, &socket_timevalue, sizeof(socket_timevalue)) < 0) {
@@ -144,6 +123,7 @@ int main(int argc, char *argv[]) {
 
         packet_t packet;
         packet_t packet_server;
+
         ssize_t n = recvfrom(client_sock_fd, &packet, sizeof(packet), 0, (struct sockaddr *)&client_addr, &client_addr_len);
 
         if (n > 0) {
@@ -153,32 +133,10 @@ int main(int argc, char *argv[]) {
 
             if(!noise) {
                 printf("Sending packet %d to Server\n", packet.sequence);
-                send_packet(server_sock_fd, &packet, (struct sockaddr *)&target_ip, listen_ip_len);
+                send_packet(server_sock_fd, &packet, (struct sockaddr *)&target_ip, target_ip_len);
                 log_packet(LOG_PROXY, "Sent to Server", packet.sequence, packet.payload, 1);
             } else if (noise == 2) {
-                printf("Delaying Client to Server packet %d\n", packet.sequence);
-                log_packet(LOG_PROXY, "Delayed Client to Server packet", packet.sequence, packet.payload, 1);
-
-                struct timeval now;
-                struct timeval send_time;
-                gettimeofday(&now, NULL);
-
-                int delay_time = determine_delay(client_delay_min, client_delay_max);
-
-                send_time.tv_sec = now.tv_sec + (delay_time/1000);
-                send_time.tv_usec = now.tv_usec + (delay_time % 1000) * 1000;
-
-                delayed_packet_t *delayed_packet = malloc(sizeof(delayed_packet_t));
-                if (!delayed_packet) {
-                    perror("malloc failed");
-                    exit(EXIT_FAILURE);
-                }
-
-                delayed_packet->packet = packet;
-                delayed_packet->send_time = send_time;
-                delayed_packet->next = NULL;
-
-                add_to_delay_queue(&client_to_server_queue, delayed_packet);
+                delay_packet(&packet, client_delay_min, client_delay_max, &client_to_server_queue, 0);
 
             } else {
                 printf("Dropping Client to Server packet %d\n", packet.sequence);
@@ -203,29 +161,7 @@ int main(int argc, char *argv[]) {
                 log_packet(LOG_PROXY, "Sent to Client", packet_server.sequence, packet_server.payload, 1);
 
             } else if (noise == 2) {
-                printf("Delaying Server to Client packet %d\n", packet_server.sequence);
-                log_packet(LOG_PROXY, "Delayed Server to Client", packet_server.sequence, packet_server.payload, 1);
-
-                struct timeval now;
-                struct timeval send_time;
-                gettimeofday(&now, NULL);
-
-                int delay_time = determine_delay(server_delay, server_delay_max);
-
-                send_time.tv_sec = now.tv_sec + (delay_time/1000);
-                send_time.tv_usec = now.tv_usec + (delay_time % 1000) * 1000;
-
-                delayed_packet_t *delayed_packet = malloc(sizeof(delayed_packet_t));
-                if (!delayed_packet) {
-                    perror("malloc failed");
-                    exit(EXIT_FAILURE);
-                }
-
-                delayed_packet->packet = packet_server;
-                delayed_packet->send_time = send_time;
-                delayed_packet->next = NULL;
-
-                add_to_delay_queue(&server_to_client_queue, delayed_packet);
+                delay_packet(&packet_server, server_delay_min, server_delay_max, &server_to_client_queue, 1);
             } else {
                 printf("Dropping Server to Client packet %d\n", packet_server.sequence);
                 log_packet(LOG_PROXY, "Dropped Server to Client", packet_server.sequence, packet_server.payload, 1);
@@ -235,7 +171,6 @@ int main(int argc, char *argv[]) {
             perror("recvfrom server");
             break;
         }
-
 
         process_delay_queue(server_sock_fd, &client_to_server_queue, (struct sockaddr *)&target_ip, target_ip_len, 0);
         process_delay_queue(client_sock_fd, &server_to_client_queue, (struct sockaddr *)&client_addr, client_addr_len, 1);
@@ -248,13 +183,11 @@ int main(int argc, char *argv[]) {
     log_close();
 
     exit(EXIT_SUCCESS);
-
 }
 
 static void init_random() {
     srand((unsigned int)time(NULL));
 }
-
 
 static void parse_args(int argc,char *argv[], char **listen_ip_str, char **listen_port_str, char **target_ip_str, char **target_port_str,
                     char **client_drop_str, char **server_drop_str, char **client_delay_str, char **server_delay_str, char **client_delay_min_time_str,
@@ -512,6 +445,42 @@ static void add_to_delay_queue(delayed_packet_t **queue, delayed_packet_t *new_n
         }
         current->next = new_node;
     }
+}
+
+static void delay_packet(packet_t *packet, int delay_min, int delay_max, delayed_packet_t **delay_queue, int queue_direction) {
+
+    char direction[LINE_LEN];
+
+    if(queue_direction){
+        strcpy(direction, "Server to Client");
+    } else {
+        strcpy(direction, "Client to Server");
+    }
+
+    printf("Delaying %s packet %d\n", direction, packet->sequence);
+    log_event(LOG_PROXY, "Delayed %s packet %d %s\n", direction, packet->sequence, packet->payload);
+
+    struct timeval now;
+    struct timeval send_time;
+    gettimeofday(&now, NULL);
+
+    int delay_time = determine_delay(delay_min, delay_max);
+
+    send_time.tv_sec = now.tv_sec + (delay_time/1000);
+    send_time.tv_usec = now.tv_usec + (delay_time % 1000) * 1000;
+
+    delayed_packet_t *delayed_packet = malloc(sizeof(delayed_packet_t));
+    if (!delayed_packet) {
+        perror("malloc failed");
+        exit(EXIT_FAILURE);
+    }
+
+        delayed_packet->packet = *packet;
+        delayed_packet->send_time = send_time;
+        delayed_packet->next = NULL;
+
+    add_to_delay_queue(delay_queue, delayed_packet);
+
 }
 
 static void process_delay_queue(int sock_fd, delayed_packet_t **queue, struct sockaddr *dest_addr, socklen_t addr_len, int queue_direction) {

@@ -4,14 +4,14 @@ COMMON = common.o log.o
 
 all: client server proxy
 
-client: client.c $(COMMON)
-	$(CC) $(CFLAGS) -o client client.c $(COMMON)
+client: client.o $(COMMON)
+	$(CC) $(CFLAGS) -o client client.o $(COMMON)
 
-server: server.c $(COMMON)
-	$(CC) $(CFLAGS) -o server server.c $(COMMON)
+server: server.o $(COMMON)
+	$(CC) $(CFLAGS) -o server server.o $(COMMON)
 
-proxy: proxy.c $(COMMON)
-	$(CC) $(CFLAGS) -o proxy proxy.c $(COMMON)
+proxy: proxy.o $(COMMON)
+	$(CC) $(CFLAGS) -o proxy proxy.o $(COMMON)
 
 %.o: %.c common.h log.h
 	$(CC) $(CFLAGS) -c $<

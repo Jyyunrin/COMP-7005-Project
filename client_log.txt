@@ -1,4 +1,21 @@
-1764644987 CLIENT Sending Packet 0: hello, attempt 1
-1764644987 CLIENT Sent 0 hello
-1764644990 CLIENT Sending Packet 0: hello, attempt 2
-1764644990 CLIENT Sent 0 hello
+1764664105 CLIENT Sending Packet 0: Hello, attempt 1
+1764664105 CLIENT Sent 0 Hello
+1764664108 CLIENT Sending Packet 0: Hello, attempt 2
+1764664108 CLIENT Sent 0 Hello
+1764664108 CLIENT Received 0 Acknowledged
+1764664108 CLIENT Printed out received acknowledgement: Acknowledged
+
+1764664120 CLIENT Sending Packet 1: Hello, attempt 1
+1764664120 CLIENT Sent 1 Hello
+1764664123 CLIENT Sending Packet 1: Hello, attempt 2
+1764664123 CLIENT Sent 1 Hello
+1764664126 CLIENT Sending Packet 1: Hello, attempt 3
+1764664126 CLIENT Sent 1 Hello
+1764664129 CLIENT Sending Packet 1: Hello, attempt 4
+1764664129 CLIENT Sent 1 Hello
+1764664132 CLIENT Sending Packet 1: Hello, attempt 5
+1764664132 CLIENT Sent 1 Hello
+1764664135 CLIENT Sending Packet 1: Hello, attempt 6
+1764664135 CLIENT Sent 1 Hello
+1764664138 CLIENT Failed to receive ACK for packet 1 after 6 attempts
+
