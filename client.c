@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         }
 
         if(!succesfully_received) {
-            log_event(LOG_CLIENT, "Failed to receive ACK for packet %d after %d attempts\n", packet.sequence, max_retries + 1);
+            log_event(LOG_CLIENT, "Error: Failed to receive ACK for packet %d after %d attempts\n", packet.sequence, max_retries + 1);
             sequence_counter++;
         }
     }

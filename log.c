@@ -2,6 +2,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <sys/stat.h>
+
 
 static FILE *log_file = NULL;
 
@@ -15,7 +17,11 @@ static const char *source_to_string(log_source_t src) {
 }
 
 void log_init(const char *filename) {
-    log_file = fopen(filename, "w");
+    mkdir("log", 0755);
+    char path[256];
+    snprintf(path, sizeof(path), "log/%s", filename);
+
+    log_file = fopen(path, "w");
     if (!log_file) {
         perror("Failed to open log file");
         exit(EXIT_FAILURE);

@@ -99,15 +99,15 @@ def update(frame):
     
     component_name = "System"
     
-    if log_file.startswith("client"):
+    if "client" in log_file:
         component_name = "Client"
         EVENTS = OTHER_EVENTS
         COLORS = OTHER_COLORS
-    elif log_file.startswith("proxy"):
+    elif "proxy" in log_file:
         component_name = "Proxy"
         EVENTS = PROXY_EVENTS
         COLORS = PROXY_COLORS
-    elif log_file.startswith("server"):
+    elif "server" in log_file:
         component_name = "Server"
         EVENTS = OTHER_EVENTS
         COLORS = OTHER_COLORS
