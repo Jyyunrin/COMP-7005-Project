@@ -29,18 +29,11 @@ int main(int argc, char *argv[]) {
     setup_signal_handler();
     parse_args(argc, argv, &ip_address, &port_str);
 
-    // printf("ip address: %s\n", ip_address);
-    // printf("port_str: %s\n", port_str);
-
     convert_address(ip_address, &addr, &addr_len);
 
     parse_port(port_str, &port);
 
-    // printf("Port: %d\n", port);
-
     sock_fd = create_socket(addr.ss_family, SOCK_DGRAM, 0);
-
-    // printf("Server address family: %d\n", addr.ss_family);
 
     bind_socket(sock_fd, &addr, port);
 

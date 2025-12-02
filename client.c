@@ -36,21 +36,11 @@ int main(int argc, char *argv[]) {
     setup_signal_handler();
     parse_args(argc, argv, &ip_address, &port_str, &timeout_str, &max_retries_str);
 
-    // printf("ip address: %s\n", ip_address);
-    // printf("port_str: %s\n", port_str);
-    // printf("timeout_str: %s\n", timeout_str);
-    // printf("max_retries_str: %s\n", max_retries_str);
-
     convert_address(ip_address, &addr, &addr_len);
 
     parse_port(port_str, &port);
 
-    // printf("Port: %d\n", port);
-
     parse_parameters(timeout_str, max_retries_str, &timeout, &max_retries);
-
-    // printf("Timeout: %d\n", timeout);
-    // printf("Max_Retries: %d\n", max_retries);
 
     sock_fd = create_socket(addr.ss_family, SOCK_DGRAM, 0);
     get_address_to_server(&addr, port);
@@ -70,10 +60,6 @@ int main(int argc, char *argv[]) {
             exit_flag = 1;
             continue;
         };
-
-        // printf("Sock: %d\n", sock_fd);
-        // printf("Packet Sequence: %d\n", packet.sequence);
-        // printf("Packet Payload: %s\n", packet.payload);
 
         for (int attempt = 0; attempt <= max_retries; attempt++) {
 
@@ -288,8 +274,4 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
             exit(EXIT_FAILURE);
         }
     }
-
 }
-
-// log_packet(log_source_t src, const char *action, int sequence, const char *message)
-// log_event (log_event(log_source_t src, const char *text, ...)
