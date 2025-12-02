@@ -12,42 +12,82 @@ if len(sys.argv) < 2:
 log_file = sys.argv[1]
 update_interval_ms = 2000
 
-EVENTS = ["Packets Sent", "Packets Received", "Fails to Receive ACK", "Proxy Delayed", "Proxy Dropped"]
-COLORS = ['#5cb85c', '#d9534f', '#663399', '#f0ad4e', '#337ab7']
+PROXY_EVENTS = [
+    "Packets Sent",
+    "Packets Received",
+    "Client to Server Delayed",
+    "Server to Client Delayed",
+    "Client to Server Dropped",
+    "Server to Client Dropped"
+]
+
+PROXY_COLORS = ['#5cb85c', '#d9534f', '#f0ad4e', '#663399', '#f0ad4e', '#337ab7']
+
+OTHER_EVENTS = [
+    "Packets Sent",
+    "Packets Received",
+    "Failed to Receive ACK"
+]
+
+OTHER_COLORS = ['#5cb85c', '#d9534f', '#663399']
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
 def read_and_process_logs():
-    sent = Counter()
-    received = Counter()
-    failed = Counter()
-    delayed = Counter()
-    dropped = Counter()
+
+    is_proxy = log_file.startswith("proxy")
+
+    if is_proxy:
+        sent = Counter()
+        received = Counter()
+        c2s_delayed = Counter()
+        s2c_delayed = Counter()
+        c2s_dropped = Counter()
+        s2c_dropped = Counter()
+    else:
+        sent = Counter()
+        received = Counter()
+        failed = Counter()
 
     try:
         with open(log_file, "r") as f:
-            for line in f:
+             for line in f:
                 if "Sent" in line:
                     sent[1] += 1
                 elif "Received" in line:
                     received[1] += 1
-                elif "Failed to receive ACK" in line:
+                elif is_proxy and "Delayed Client to Server" in line:
+                    c2s_delayed[1] += 1
+                elif is_proxy and "Delayed Server to Client" in line:
+                    s2c_delayed[1] += 1
+                elif is_proxy and "Dropped Client to Server" in line:
+                    c2s_dropped[1] += 1
+                elif is_proxy and "Dropped Server to Client" in line:
+                    s2c_dropped[1] += 1
+                elif not is_proxy and "Failed to receive ACK" in line:
                     failed[1] += 1
-                elif "Delayed" in line:
-                    delayed[1] += 1
-                elif "Dropped" in line:
-                    dropped[1] += 1
     except FileNotFoundError:
         print(f"Log file not found: {log_file}", file=sys.stderr)
-        return [0, 0, 0, 0, 0]
+        if is_proxy:
+            return [0]*6
+        else:
+            return [0]*3
 
-    total_counts = [
-        sum(sent.values()),
-        sum(received.values()),
-        sum(failed.values()),
-        sum(delayed.values()),
-        sum(dropped.values())
-    ]
+    if is_proxy:
+        total_counts = [
+            sum(sent.values()),
+            sum(received.values()),
+            sum(c2s_delayed.values()),
+            sum(s2c_delayed.values()),
+            sum(c2s_dropped.values()),
+            sum(s2c_dropped.values())
+        ]
+    else:
+        total_counts = [
+            sum(sent.values()),
+            sum(received.values()),
+            sum(failed.values())
+        ]
 
     return total_counts
 
@@ -57,14 +97,20 @@ def update(frame):
     
     ax.clear() 
     
-    component_name = "System" # Default name
+    component_name = "System"
     
     if log_file.startswith("client"):
         component_name = "Client"
+        EVENTS = OTHER_EVENTS
+        COLORS = OTHER_COLORS
     elif log_file.startswith("proxy"):
         component_name = "Proxy"
+        EVENTS = PROXY_EVENTS
+        COLORS = PROXY_COLORS
     elif log_file.startswith("server"):
         component_name = "Server"
+        EVENTS = OTHER_EVENTS
+        COLORS = OTHER_COLORS
 
     title = f"Live Total Event Counts Summary for {component_name} (Updated: {time.strftime('%H:%M:%S')})"
 
