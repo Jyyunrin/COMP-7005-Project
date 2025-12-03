@@ -8,8 +8,8 @@
 #define MAX_RETRIES 100
 #define MIN_INT_PARSE 0
 #define MAX_INT_PARSE 100000
-#define PROXY_TIMEOUT_S 2
-#define PROXY_TIMEOUT_US 100000
+#define PROXY_TIMEOUT_S 1
+#define PROXY_TIMEOUT_US 0
 
 #include <stdio.h>
 #include <stdlib.h>

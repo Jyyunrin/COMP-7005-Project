@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     server_delay_max    = parse_int_param(server_delay_max_time_str, "server-delay-max");
 
     if(client_delay_min > client_delay_max || server_delay_min > server_delay_max) {
-        fprintf(stderr, "Delay min time cannot be greater than delay max time");
+        fprintf(stderr, "Delay min time cannot be greater than delay max time\n");
         exit(EXIT_FAILURE);
     }
 
@@ -396,6 +396,13 @@ static int parse_int_param(const char *str, const char *name) {
         fprintf(stderr, "Invalid non-numeric characters in %s: %s\n", name, str);
     }
 
+    if(strcmp(name, "client-drop") == 0 || strcmp(name, "server-drop") == 0 || strcmp(name, "client-delay") == 0 || strcmp(name, "server-delay") == 0) {
+        if(value > 100 || value < 0) {
+            fprintf(stderr, "%s value must be between 0 and 100\n", name);
+            exit(EXIT_FAILURE);
+        }
+    }
+
     if(value < MIN_INT_PARSE || value > MAX_INT_PARSE) {
         fprintf(stderr, "%s value is out of range", name);
         exit(EXIT_FAILURE);
@@ -406,6 +413,7 @@ static int parse_int_param(const char *str, const char *name) {
 }
 
 static int determine_noise(const int drop_chance, const int delay_chance) {
+
     int percent = rand() % 100 + 1;
 
     // Drop

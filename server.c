@@ -161,7 +161,7 @@ static int handle_packet(packet_t *packet, int *sequence_counter) {
         return 1;
     } else {
         log_event(LOG_SERVER, "Message: %s from Packet %d", packet->payload, packet->sequence);
-        (*sequence_counter)++;
+        (*sequence_counter) = packet->sequence;
         return 1;
     }
 }
