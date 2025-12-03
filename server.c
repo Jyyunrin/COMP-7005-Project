@@ -155,6 +155,7 @@ static int receive_packet(int sock_fd, packet_t *packet, struct sockaddr_storage
 static int handle_packet(packet_t *packet, int *sequence_counter) {
     
     if(packet->sequence < *sequence_counter) {
+        log_packet(LOG_SERVER, "Ignored", packet->sequence, packet->payload, 0);
         return 0;
     } else if (packet->sequence == *sequence_counter) {
         return 1;

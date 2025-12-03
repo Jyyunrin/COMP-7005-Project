@@ -492,7 +492,7 @@ static void process_delay_queue(int sock_fd, delayed_packet_t **queue, struct so
 
         if (timercmp(&now, &delayed_packet->send_time, >=)) {
             send_packet(sock_fd, &delayed_packet->packet, dest_addr, addr_len);
-            log_event(LOG_PROXY, "Sent delayed packet %s %d\n", direction, delayed_packet->packet.sequence);
+            log_event(LOG_PROXY, "Sent delayed packet %d %s\n", delayed_packet->packet.sequence, direction);
             *queue = delayed_packet->next;
             free(delayed_packet);
         } else {

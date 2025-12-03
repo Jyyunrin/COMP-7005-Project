@@ -26,10 +26,11 @@ PROXY_COLORS = ['#5cb85c', '#d9534f', '#f0ad4e', '#663399', '#f0ad4e', '#337ab7'
 OTHER_EVENTS = [
     "Packets Sent",
     "Packets Received",
-    "Failed to Receive ACK"
+    "Failed to Receive ACK",
+    "Packets Ignored"
 ]
 
-OTHER_COLORS = ['#5cb85c', '#d9534f', '#663399']
+OTHER_COLORS = ['#5cb85c', '#d9534f', '#663399','#f0ad4e']
 
 fig, ax = plt.subplots(figsize=(8, 6))
 
@@ -48,6 +49,7 @@ def read_and_process_logs():
         sent = Counter()
         received = Counter()
         failed = Counter()
+        ignored = Counter()
 
     try:
         with open(log_file, "r") as f:
@@ -66,12 +68,14 @@ def read_and_process_logs():
                     s2c_dropped[1] += 1
                 elif not is_proxy and "Failed to receive ACK" in line:
                     failed[1] += 1
+                elif not is_proxy and "Ignored" in line:
+                    ignored[1] += 1
     except FileNotFoundError:
         print(f"Log file not found: {log_file}", file=sys.stderr)
         if is_proxy:
             return [0]*6
         else:
-            return [0]*3
+            return [0]*4
 
     if is_proxy:
         total_counts = [
@@ -86,7 +90,8 @@ def read_and_process_logs():
         total_counts = [
             sum(sent.values()),
             sum(received.values()),
-            sum(failed.values())
+            sum(failed.values()),
+            sum(ignored.values())
         ]
 
     return total_counts

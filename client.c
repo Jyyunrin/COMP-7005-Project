@@ -1,11 +1,14 @@
 #include "common.h"
 #include "log.h"
+#include <sys/time.h>
+
 
 static void parse_args(int argc,char *argv[], char **ip_address, char **port_str, char **timeout_str, char **max_retries_str);
 _Noreturn static void usage(const char *program_name, int exit_code, const char *message);
 static void parse_timeout_and_retries(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries);
 static int fill_packet(packet_t *packet, int seq);
-static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence);
+static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, double timeout_time, int *current_sequence);
+static void drain_socket(int sock_fd);
 
 int main(int argc, char *argv[]) {
 
@@ -63,12 +66,14 @@ int main(int argc, char *argv[]) {
 
         for (int attempt = 0; attempt <= max_retries; attempt++) {
 
+            drain_socket(sock_fd);
+
             log_event(LOG_CLIENT, "Sending Packet %d, Attempt %d", packet.sequence, attempt + 1);
 
             send_packet(sock_fd, &packet, (struct sockaddr *)&addr, addr_len);
             log_packet(LOG_CLIENT, "Sent", packet.sequence, packet.payload, 0);
 
-            succesfully_received = receive_acknowledgement(sock_fd, &ack_packet, (struct sockaddr *)&addr, &addr_len, &sequence_counter);
+            succesfully_received = receive_acknowledgement(sock_fd, &ack_packet, (struct sockaddr *)&addr, &addr_len, socket_timevalue.tv_sec, &sequence_counter);
                 
             if (succesfully_received){
                 break;
@@ -253,27 +258,57 @@ static int fill_packet(packet_t *packet, int seq) {
     }
 }
 
-static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, int *current_sequence) {
+static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, double timeout_time, int *current_sequence) {
+
+    struct timeval start, now;
+    gettimeofday(&start, NULL);
+    double elapsed = 0;
+    double timeout_sec;
+    timeout_sec = timeout_time;
+
+    while(elapsed < timeout_sec) {
 
     ssize_t bytes_received = recvfrom(sock_fd, ack_packet, sizeof(*ack_packet), 0, addr, addr_len);
 
-    if (bytes_received >= 0) {
-        if(ack_packet->sequence == *current_sequence) {
+        if (bytes_received >= 0) {
+            if(ack_packet->sequence == *current_sequence) {
 
-            (*current_sequence)++;
-            log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload, 0);
-            log_event(LOG_CLIENT, "Acknowledgement: %s from Packet %d\n", ack_packet->payload, ack_packet->sequence);
-            return 1;
+                (*current_sequence)++;
+                log_packet(LOG_CLIENT, "Received", ack_packet->sequence, ack_packet->payload, 0);
+                log_event(LOG_CLIENT, "Acknowledgement: %s from Packet %d\n", ack_packet->payload, ack_packet->sequence);
+                return 1;
 
+            } else {
+                log_packet(LOG_CLIENT, "Ignored", ack_packet->sequence, ack_packet->payload, 0);
+            }
         } else {
-            return 0;
+            if(errno == EAGAIN || errno == EWOULDBLOCK) {
+                return 0;
+            } else {
+                perror("Error with Recvfrom");
+                exit(EXIT_FAILURE);
+            }
         }
-    } else {
-        if(errno == EAGAIN || errno == EWOULDBLOCK) {
-            return 0;
-        } else {
-            perror("Error with Recvfrom");
-            exit(EXIT_FAILURE);
-        }
+
+        gettimeofday(&now, NULL);
+        elapsed = (now.tv_sec - start.tv_sec) + (now.tv_usec - start.tv_usec)/1e6;
+    }
+
+    return 0;
+}
+
+static void drain_socket(int sock_fd) {
+    packet_t temp_ack;
+    struct sockaddr temp_addr;
+    socklen_t temp_len = sizeof(temp_addr);
+
+    while (recvfrom(sock_fd, &temp_ack, sizeof(temp_ack),
+                    MSG_DONTWAIT, &temp_addr, &temp_len) > 0) {
+        log_packet(LOG_CLIENT, "Ignored", temp_ack.sequence, temp_ack.payload, 0);
+    }
+
+    if (errno != EAGAIN && errno != EWOULDBLOCK) {
+        perror("Error draining socket");
+        exit(EXIT_FAILURE);
     }
 }
