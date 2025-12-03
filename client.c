@@ -8,7 +8,7 @@ _Noreturn static void usage(const char *program_name, int exit_code, const char 
 static void parse_timeout_and_retries(char *timeout_str, char *max_retries_str, int *timeout, int *max_retries);
 static int fill_packet(packet_t *packet, int seq);
 static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct sockaddr *addr, socklen_t *addr_len, double timeout_time, int *current_sequence);
-static void drain_socket(int sock_fd);
+static void drain_socket(int sock_fd, int log);
 
 int main(int argc, char *argv[]) {
 
@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    drain_socket(sock_fd, 0);
+
     while (!exit_flag) {
         succesfully_received = 0;
 
@@ -66,7 +68,7 @@ int main(int argc, char *argv[]) {
 
         for (int attempt = 0; attempt <= max_retries; attempt++) {
 
-            drain_socket(sock_fd);
+            drain_socket(sock_fd, 1);
 
             log_event(LOG_CLIENT, "Sending Packet %d, Attempt %d", packet.sequence, attempt + 1);
 
@@ -297,14 +299,16 @@ static int receive_acknowledgement(int sock_fd, packet_t *ack_packet, struct soc
     return 0;
 }
 
-static void drain_socket(int sock_fd) {
+static void drain_socket(int sock_fd, int log) {
     packet_t temp_ack;
     struct sockaddr temp_addr;
     socklen_t temp_len = sizeof(temp_addr);
 
     while (recvfrom(sock_fd, &temp_ack, sizeof(temp_ack),
                     MSG_DONTWAIT, &temp_addr, &temp_len) > 0) {
-        log_packet(LOG_CLIENT, "Ignored", temp_ack.sequence, temp_ack.payload, 0);
+        if(log) {
+            log_packet(LOG_CLIENT, "Ignored", temp_ack.sequence, temp_ack.payload, 0);
+        }
     }
 
     if (errno != EAGAIN && errno != EWOULDBLOCK) {
